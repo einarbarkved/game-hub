@@ -1,0 +1,39 @@
+name: Build Docker Container, push to Docker and deoply to Kubectl
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish and Deploy
+    runs-on: ubuntu-latest
+    env:
+      CLUSTER_NAME: default
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Kubectl
+        uses: tale/kubectl-actions@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+      - name: Login to Docker Container Registry with short-lived creds
+        run: docker login --username ${{ secrets.DOCKER_USER }} --password ${{ secrets.DOCKER_PASS }}
+      - name: Build container image
+        working-directory: ./web
+        run: |
+          docker build -f Dockerfile \
+            -t einarbarkved/game-hub:latest \
+            -t einarbarkved/game-hub:${GITHUB_SHA::7} \
+            .
+      - name: Push image to registry
+        run: |
+          docker push einarbarkved/game-hub --all-tags
+      - name: Update Deployment image
+        run: |
+          kubectl set image deployment/game-hub-deployment game-hub=einarbarkved/game-hub:${GITHUB_SHA::7}
+      - name: Wait for rollout to finish
+        run: |
+          kubectl rollout status deployment/game-hub-deployment
