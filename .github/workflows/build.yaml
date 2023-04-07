@@ -22,7 +22,7 @@ jobs:
       - name: Login to Docker Container Registry with short-lived creds
         run: docker login --username ${{ secrets.DOCKER_USER }} --password ${{ secrets.DOCKER_PASS }}
       - name: Build container image
-        working-directory: ./web
+        working-directory: .
         run: |
           docker build -f Dockerfile \
             -t einarbarkved/game-hub:latest \
