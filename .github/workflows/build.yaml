@@ -8,7 +8,7 @@ on:
 
 jobs:
   setup-build-publish-deploy:
-    name: Setup, Build, Publish and Deploy
+    name: Setup, Build, Publish and Deploy v2
     runs-on: ubuntu-latest
     env:
       CLUSTER_NAME: default
