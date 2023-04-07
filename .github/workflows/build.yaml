@@ -21,6 +21,11 @@ jobs:
           base64-kube-config: ${{ secrets.KUBE_CONFIG }}
       - name: Login to Docker Container Registry with short-lived creds
         run: docker login --username ${{ secrets.DOCKER_USER }} --password ${{ secrets.DOCKER_PASS }}
+      - name: Build npm
+        working-directory: .
+        run: |
+          npm i
+          npm run build
       - name: Build container image
         working-directory: .
         run: |
